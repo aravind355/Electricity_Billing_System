@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Admin Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(90deg, #9c27b0, #ba68c8);
+            padding: 20px 30px;
+            box-shadow: 0 4px 15px rgba(156, 39, 176, 0.3);
+        }
+
+        .header h2 {
+            font-size: 1.5rem;
+            color: #fff;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 10px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #fff;
+            color: #9c27b0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .stat-card .number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #ba68c8;
+        }
+
+        .stat-card .label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card h3 {
+            color: #ba68c8;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            border-bottom: 2px solid rgba(186, 104, 200, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #9c27b0, #ba68c8);
+            color: #fff;
+        }
+
+        .btn-success {
+            background: linear-gradient(90deg, #00c853, #00e676);
+            color: #1a1a2e;
+        }
+
+        .btn-danger {
+            background: #ff5252;
+            color: #fff;
+        }
+
+        .btn-warning {
+            background: #ff9800;
+            color: #1a1a2e;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            background: rgba(156, 39, 176, 0.2);
+            color: #ba68c8;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .pending-card {
+            background: rgba(255, 152, 0, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #ff9800;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .pending-info {
+            flex: 1;
+        }
+
+        .pending-info p {
+            margin: 5px 0;
+            color: #bdc3c7;
+        }
+
+        .pending-info strong {
+            color: #fff;
+        }
+
+        .pending-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #ff9800;
+            color: #1a1a2e;
+        }
+
+        .status-paid {
+            background: #00c853;
+            color: #1a1a2e;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.05);
+            color: #7f8c8d;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: #9c27b0;
+            color: #fff;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1a1a2e;
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-content h3 {
+            color: #ba68c8;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            float: right;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #7f8c8d;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #7f8c8d;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h2>⚡ Admin Dashboard</h2>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="number" id="totalUsers">0</div>
+                <div class="label">Active Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="totalBills">0</div>
+                <div class="label">Total Bills</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="pendingApps">0</div>
+                <div class="label">Pending Applications</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="totalRevenue">₹0</div>
+                <div class="label">Total Revenue</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Pending Applications</h3>
+            <div id="pendingList"></div>
+        </div>
+
+        <div class="card">
+            <h3>Employee Activity Logs</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Service No</th>
+                        <th>Role</th>
+                        <th>Login Time</th>
+                        <th>Logout Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="empLogsTable"></tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h3>All Bills</h3>
+            <div class="tabs">
+                <div class="tab active" onclick="switchBillTab('all')">All</div>
+                <div class="tab" onclick="switchBillTab('pending')">Pending</div>
+                <div class="tab" onclick="switchBillTab('paid')">Paid</div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Service No</th>
+                        <th>Consumer</th>
+                        <th>Type</th>
+                        <th>Month</th>
+                        <th>Units</th>
+                        <th>Bill (₹)</th>
+                        <th>Fine</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="billsTable"></tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h3>Active Users</h3>
+            <div class="tabs">
+                <div class="tab active" onclick="switchUserTab('all')">All</div>
+                <div class="tab" onclick="switchUserTab('household')">Household</div>
+                <div class="tab" onclick="switchUserTab('commercial')">Commercial</div>
+                <div class="tab" onclick="switchUserTab('industrial')">Industrial</div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Service No</th>
+                        <th>Type</th>
+                        <th>Phone</th>
+                        <th>Total Bills</th>
+                        <th>Total Amount (₹)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h3>Edit Bill</h3>
+            <input type="hidden" id="editBillId">
+            <div class="form-group">
+                <label>Units</label>
+                <input type="number" id="editUnits" min="0">
+            </div>
+            <div class="form-group">
+                <label>Month</label>
+                <input type="month" id="editMonth">
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select id="editStatus">
+                    <option value="pending">Pending</option>
+                    <option value="paid">Paid</option>
+                </select>
+            </div>
+            <button class="btn btn-success" onclick="saveBillEdit()">Save Changes</button>
+        </div>
+    </div>
+
+    <script>
+        let allBills = [];
+        let allUsers = [];
+        let billFilter = 'all';
+        let userFilter = 'all';
+
+        async function checkAuth() {
+            const res = await fetch('/api/session', { credentials: 'include' });
+            const data = await res.json();
+            if (!data.authenticated || data.user.role !== 'admin') {
+                window.location.href = '/';
+            }
+        }
+        checkAuth();
+
+        function formatDate(d) {
+            if (!d) return 'N/A';
+            return new Date(d).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function switchBillTab(filter) {
+            billFilter = filter;
+            document.querySelectorAll('.card:nth-child(4) .tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            renderBills();
+        }
+
+        function switchUserTab(filter) {
+            userFilter = filter;
+            document.querySelectorAll('.card:nth-child(5) .tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            renderUsers();
+        }
+
+        function renderBills() {
+            let filtered = allBills;
+            if (billFilter === 'pending') filtered = allBills.filter(b => b.status === 'pending');
+            if (billFilter === 'paid') filtered = allBills.filter(b => b.status === 'paid');
+
+            document.getElementById('billsTable').innerHTML = filtered.length === 0
+                ? '<tr><td colspan="9" class="no-data">No bills found</td></tr>'
+                : filtered.map(b => `
+                <tr>
+                    <td>${b.serviceNo}</td>
+                    <td>${b.userName}</td>
+                    <td style="text-transform:capitalize">${b.userType || 'N/A'}</td>
+                    <td>${b.month}</td>
+                    <td>${b.units}</td>
+                    <td>₹${b.totalBill.toFixed(2)}</td>
+                    <td style="color:${b.fine > 0 ? '#ff5252' : '#00c853'}">₹${b.fine || 0}</td>
+                    <td><span class="status-badge ${b.status === 'paid' ? 'status-paid' : 'status-pending'}">${b.status.toUpperCase()}</span></td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" onclick="editBill('${b._id}', ${b.units}, '${b.month}', '${b.status}')">Edit</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteBill('${b._id}')">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderUsers() {
+            let filtered = allUsers;
+            if (userFilter !== 'all') filtered = allUsers.filter(u => u.type === userFilter);
+
+            document.getElementById('usersTable').innerHTML = filtered.length === 0
+                ? '<tr><td colspan="7" class="no-data">No users found</td></tr>'
+                : filtered.map(u => `
+                <tr>
+                    <td>${u.name}</td>
+                    <td>${u.serviceNo}</td>
+                    <td style="text-transform:capitalize">${u.type || 'N/A'}</td>
+                    <td>${u.phone}</td>
+                    <td>${u.billCount || 0}</td>
+                    <td>₹${(u.totalAmount || 0).toFixed(2)}</td>
+                    <td><button class="btn btn-danger btn-sm" onclick="deleteUser('${u._id}')">Delete</button></td>
+                </tr>
+            `).join('');
+        }
+
+        async function loadData() {
+            const res = await fetch('/api/admin/data', { credentials: 'include' });
+            const data = await res.json();
+
+            document.getElementById('totalUsers').textContent = data.usersData.length;
+            document.getElementById('totalBills').textContent = data.allBills?.length || 0;
+            document.getElementById('pendingApps').textContent = data.pending.length;
+            const revenue = data.usersData.reduce((sum, u) => sum + (u.totalAmount || 0), 0);
+            document.getElementById('totalRevenue').textContent = '₹' + revenue.toFixed(0);
+
+            const pendingDiv = document.getElementById('pendingList');
+            if (data.pending.length === 0) {
+                pendingDiv.innerHTML = '<div class="no-data">No pending applications</div>';
+            } else {
+                pendingDiv.innerHTML = data.pending.map(u => `
+                    <div class="pending-card">
+                        <div class="pending-info">
+                            <p><strong>Name:</strong> ${u.name} &nbsp; <strong>Type:</strong> ${u.type?.toUpperCase() || 'N/A'}</p>
+                            <p><strong>Phone:</strong> ${u.phone} &nbsp; <strong>Email:</strong> ${u.email}</p>
+                            <p><strong>Address:</strong> ${u.address}, ${u.pincode}</p>
+                        </div>
+                        <div class="pending-actions">
+                            <button class="btn btn-success" onclick="approveUser('${u._id}')">Approve</button>
+                            <button class="btn btn-danger" onclick="deleteUser('${u._id}')">Reject</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            document.getElementById('empLogsTable').innerHTML = data.empLogs.map(e => `
+                <tr>
+                    <td>${e.serviceNo}</td>
+                    <td style="text-transform:capitalize">${e.role}</td>
+                    <td>${formatDate(e.loginTime)}</td>
+                    <td>${e.logoutTime ? formatDate(e.logoutTime) : '-'}</td>
+                    <td><span class="status-badge ${e.logoutTime ? 'status-paid' : 'status-pending'}">${e.logoutTime ? 'OFFLINE' : 'ACTIVE'}</span></td>
+                </tr>
+            `).join('');
+
+            allBills = data.allBills || [];
+            allUsers = data.usersData || [];
+            renderBills();
+            renderUsers();
+        }
+
+        async function approveUser(id) {
+            const res = await fetch('/api/admin/approve', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ id })
+            });
+            const d = await res.json();
+            alert(d.message + "\nService No: " + d.serviceNo);
+            loadData();
+        }
+
+        async function deleteUser(id) {
+            if (confirm("Are you sure you want to delete this user? All their bills will also be deleted.")) {
+                await fetch('/api/delete-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ id })
+                });
+                loadData();
+            }
+        }
+
+        function editBill(id, units, month, status) {
+            document.getElementById('editBillId').value = id;
+            document.getElementById('editUnits').value = units;
+            document.getElementById('editMonth').value = month;
+            document.getElementById('editStatus').value = status;
+            document.getElementById('editModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').classList.remove('show');
+        }
+
+        async function saveBillEdit() {
+            const id = document.getElementById('editBillId').value;
+            const units = document.getElementById('editUnits').value;
+            const month = document.getElementById('editMonth').value;
+            const status = document.getElementById('editStatus').value;
+
+            const res = await fetch(`/api/bill/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ units, month, status })
+            });
+
+            if (res.ok) {
+                closeModal();
+                loadData();
+            } else {
+                alert("Error updating bill");
+            }
+        }
+
+        async function deleteBill(id) {
+            if (confirm("Are you sure you want to delete this bill?")) {
+                await fetch(`/api/bill/${id}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+                loadData();
+            }
+        }
+
+        async function logout() {
+            await fetch('/api/logout', {
+                method: 'POST',
+                credentials: 'include'
+            });
+            window.location.href = '/';
+        }
+
+        loadData();
+    </script>
+</body>
+
+</html>
