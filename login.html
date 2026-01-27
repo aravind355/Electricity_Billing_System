@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>EBS Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            width: 420px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        h2 {
+            color: #00e676;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #7f8c8d;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 14px 18px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #00e676;
+            box-shadow: 0 0 15px rgba(0, 230, 118, 0.2);
+        }
+
+        input::placeholder {
+            color: #7f8c8d;
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        select option {
+            background: #1a1a2e;
+            color: #fff;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(90deg, #00c853, #00e676);
+            border: none;
+            border-radius: 10px;
+            color: #1a1a2e;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 230, 118, 0.3);
+        }
+
+        .toggle-link {
+            text-align: center;
+            margin-top: 25px;
+            color: #7f8c8d;
+        }
+
+        .toggle-link a {
+            color: #00e676;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .toggle-link a:hover {
+            text-decoration: underline;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .error-msg {
+            color: #ff5252;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo span {
+            font-size: 3rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" id="loginParams">
+        <div class="logo"><span>⚡</span></div>
+        <h2>Electricity Bill System</h2>
+        <div class="form-group">
+            <label>Service Number</label>
+            <input type="text" id="loginServiceNo" placeholder="Enter your service number">
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="loginPass" placeholder="Enter your password">
+        </div>
+        <button onclick="login()">Login</button>
+        <p class="toggle-link">Don't have an account? <a onclick="toggleView()">Register here</a></p>
+    </div>
+
+    <div class="container hidden" id="registerParams">
+        <div class="logo"><span>⚡</span></div>
+        <h2>New Connection</h2>
+        <div class="form-group">
+            <label>Full Name (Letters only)</label>
+            <input type="text" id="regName" placeholder="Enter full name">
+            <span class="error-msg" id="nameError">Only alphabets and spaces allowed</span>
+        </div>
+        <div class="form-group">
+            <label>Phone Number (10 digits)</label>
+            <input type="tel" id="regPhone" placeholder="Enter 10-digit phone">
+            <span class="error-msg" id="phoneError">Must be exactly 10 digits</span>
+        </div>
+        <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="regEmail" placeholder="Enter email address">
+        </div>
+        <div class="form-group">
+            <label>Address</label>
+            <input type="text" id="regAddress" placeholder="Enter your address">
+        </div>
+        <div class="form-group">
+            <label>Pincode (6 digits)</label>
+            <input type="text" id="regPin" placeholder="Enter 6-digit pincode">
+        </div>
+        <div class="form-group">
+            <label>Connection Type</label>
+            <select id="regType">
+                <option value="household">Household</option>
+                <option value="commercial">Commercial</option>
+                <option value="industrial">Industrial</option>
+            </select>
+        </div>
+        <button onclick="register()">Submit Application</button>
+        <p class="toggle-link"><a onclick="toggleView()">Back to Login</a></p>
+    </div>
+
+    <script>
+        (async function () {
+            const res = await fetch('/api/session', { credentials: 'include' });
+            const data = await res.json();
+            if (data.authenticated) {
+                const u = data.user;
+                window.location.href = u.role === 'admin' ? 'admin.html' : u.role === 'employee' ? 'employee.html' : 'user.html';
+            }
+        })();
+
+        const toggleView = () => {
+            document.getElementById('loginParams').classList.toggle('hidden');
+            document.getElementById('registerParams').classList.toggle('hidden');
+        };
+
+        function validateField(value, regex, errorId) {
+            const errorEl = document.getElementById(errorId);
+            if (!regex.test(value)) {
+                errorEl.style.display = 'block';
+                return false;
+            }
+            errorEl.style.display = 'none';
+            return true;
+        }
+
+        document.getElementById('regName').addEventListener('input', (e) => {
+            validateField(e.target.value, /^[a-zA-Z\s]*$/, 'nameError');
+        });
+
+        document.getElementById('regPhone').addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
+            if (e.target.value.length === 10) validateField(e.target.value, /^\d{10}$/, 'phoneError');
+        });
+
+        async function login() {
+            const serviceNo = document.getElementById('loginServiceNo').value;
+            const password = document.getElementById('loginPass').value;
+
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ serviceNo, password })
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                window.location.href = data.user.role === 'admin' ? 'admin.html' : data.user.role === 'employee' ? 'employee.html' : 'user.html';
+            } else {
+                alert(data.message);
+            }
+        }
+
+        async function register() {
+            const name = document.getElementById('regName').value;
+            const phone = document.getElementById('regPhone').value;
+            const email = document.getElementById('regEmail').value;
+            const address = document.getElementById('regAddress').value;
+            const pincode = document.getElementById('regPin').value;
+            const type = document.getElementById('regType').value;
+
+            const nameRegex = /^[a-zA-Z\s]{1,32}$/;
+            const phoneRegex = /^\d{10}$/;
+            const pinRegex = /^\d{6}$/;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (!nameRegex.test(name)) return alert("Invalid Name: Max 32 chars, letters only.");
+            if (!phoneRegex.test(phone)) return alert("Invalid Phone: Must be 10 digits.");
+            if (!emailRegex.test(email)) return alert("Invalid Email format.");
+            if (!address) return alert("Address is mandatory.");
+            if (!pinRegex.test(pincode)) return alert("Invalid Pincode: Must be 6 digits.");
+
+            const res = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ name, phone, email, address, pincode, type })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                alert(data.message);
+                toggleView();
+            } else {
+                alert(data.message || data.error);
+            }
+        }
+    </script>
+</body>
+
+</html>

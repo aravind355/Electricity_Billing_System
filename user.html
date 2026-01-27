@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>My Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(90deg, #ff6b6b, #ff8e8e);
+            padding: 20px 30px;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .header h2 {
+            font-size: 1.5rem;
+            color: #fff;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 10px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #fff;
+            color: #ff6b6b;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .profile-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .profile-info h3 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: #ff8e8e;
+        }
+
+        .profile-info p {
+            color: #bdc3c7;
+            margin: 5px 0;
+            font-size: 1.1rem;
+        }
+
+        .profile-info strong {
+            color: #fff;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 30px;
+            text-align: center;
+        }
+
+        .stat-item h4 {
+            font-size: 2rem;
+            color: #ff8e8e;
+        }
+
+        .stat-item span {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .bills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .bill-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bill-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .bill-card.paid {
+            border-left: 5px solid #00c853;
+        }
+
+        .bill-card.pending {
+            border-left: 5px solid #ff9800;
+        }
+
+        .bill-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .bill-month {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .bill-status {
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 15px;
+        }
+
+        .status-paid {
+            background: rgba(0, 200, 83, 0.2);
+            color: #00c853;
+        }
+
+        .status-pending {
+            background: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+        }
+
+        .bill-details {
+            margin-bottom: 20px;
+        }
+
+        .bill-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .bill-row span:first-child {
+            color: #bdc3c7;
+        }
+
+        .bill-amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-top: 15px;
+            text-align: right;
+        }
+
+        .pay-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(90deg, #ff6b6b, #ff8e8e);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .pay-btn:hover {
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .paid-info {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.2);
+            font-size: 0.85rem;
+            color: #00c853;
+        }
+
+        .no-bills {
+            text-align: center;
+            grid-column: 1 / -1;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1a1a2e;
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 450px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #7f8c8d;
+        }
+
+        .payment-summary {
+            text-align: center;
+            margin-bottom: 25px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .payment-amount {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-top: 5px;
+        }
+
+        .payment-methods {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .method-btn {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: transparent;
+            color: #bdc3c7;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .method-btn.active,
+        .method-btn:hover {
+            background: #ff6b6b;
+            color: #fff;
+            border-color: #ff6b6b;
+        }
+
+        .payment-form input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #fff;
+        }
+
+        .confirm-pay-btn {
+            width: 100%;
+            padding: 15px;
+            background: #00c853;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+
+        .success-animation {
+            text-align: center;
+            color: #00c853;
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: block;
+        }
+
+        @keyframes pop {
+            0% {
+                transform: scale(0);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h2>⚡ My Dashboard</h2>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <div class="container">
+        <div class="profile-card">
+            <div class="profile-info">
+                <h3 id="userName">User Name</h3>
+                <p>Service No: <strong id="userServiceNo">---</strong></p>
+                <p>Type: <strong id="userType" style="text-transform: capitalize;">---</strong></p>
+                <p>Address: <span id="userAddress">---</span></p>
+            </div>
+            <div class="stats-row">
+                <div class="stat-item">
+                    <h4 id="pendingCount">0</h4>
+                    <span>Pending Bills</span>
+                </div>
+                <div class="stat-item">
+                    <h4 id="totalPaid">₹0</h4>
+                    <span>Total Paid</span>
+                </div>
+            </div>
+        </div>
+
+        <h3 style="color: #ff8e8e; margin-bottom: 20px;">Billing History</h3>
+        <div class="bills-grid" id="billsList">
+            <!-- Bills will be injected here -->
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="modal" id="paymentModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closePaymentModal()">&times;</span>
+            <h3 style="text-align: center; color: #bdc3c7; margin-bottom: 20px;">Complete Payment</h3>
+            <div class="payment-summary">
+                <span>Total Amount</span>
+                <div class="payment-amount" id="paymentTotal">₹0</div>
+            </div>
+            <div class="payment-methods">
+                <button class="method-btn active" onclick="selectMethod('card')">Card</button>
+                <button class="method-btn" onclick="selectMethod('upi')">UPI</button>
+                <button class="method-btn" onclick="selectMethod('netbanking')">Net Banking</button>
+            </div>
+            <div class="payment-form" id="paymentForm">
+                <input type="text" placeholder="Card Number" id="cardInput">
+                <input type="text" placeholder="MM/YY" style="width: 48%;">
+                <input type="text" placeholder="CVC" style="width: 48%; float: right;">
+            </div>
+            <input type="hidden" id="paymentBillId">
+            <input type="hidden" id="paymentAmountValue">
+            <button class="confirm-pay-btn" onclick="processPayment()">Pay Now</button>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal" id="successModal">
+        <div class="modal-content">
+            <div class="success-animation">
+                <span class="success-icon">✓</span>
+                <h3>Payment Successful!</h3>
+                <p style="color: #bdc3c7; margin: 15px 0;">Transaction ID: <strong id="txnId"
+                        style="color: #fff;"></strong></p>
+                <button class="confirm-pay-btn" onclick="closeSuccessModal()">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPaymentMethod = 'card';
+
+        async function checkAuth() {
+            const res = await fetch('/api/session', { credentials: 'include' });
+            const data = await res.json();
+            if (!data.authenticated) {
+                window.location.href = '/';
+            } else {
+                loadData(data.user.serviceNo);
+            }
+        }
+        checkAuth();
+
+        async function loadData(serviceNo) {
+            const res = await fetch(`/api/user/info/${serviceNo}`, { credentials: 'include' });
+            const data = await res.json();
+
+            document.getElementById('userName').textContent = data.user.name;
+            document.getElementById('userServiceNo').textContent = data.user.serviceNo;
+            document.getElementById('userType').textContent = data.user.type;
+            document.getElementById('userAddress').textContent = `${data.user.address}, ${data.user.pincode}`;
+
+            const pending = data.bills.filter(b => b.status === 'pending').length;
+            const paidTotal = data.bills.filter(b => b.status === 'paid').reduce((sum, b) => sum + b.paidAmount, 0);
+
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('totalPaid').textContent = '₹' + paidTotal.toFixed(0);
+
+            const billsDiv = document.getElementById('billsList');
+            if (data.bills.length === 0) {
+                billsDiv.innerHTML = '<div class="no-bills">No billing history found</div>';
+            } else {
+                billsDiv.innerHTML = data.bills.map(b => `
+                    <div class="bill-card ${b.status}">
+                        <div class="bill-header">
+                            <div class="bill-month">${b.month}</div>
+                            <div class="bill-status status-${b.status}">${b.status.toUpperCase()}</div>
+                        </div>
+                        <div class="bill-details">
+                            <div class="bill-row"><span>Units Consumed</span> <span>${b.units}</span></div>
+                            <div class="bill-row"><span>Reading Date</span> <span>${new Date(b.readingDate).toLocaleDateString()}</span></div>
+                            <div class="bill-row"><span>Due Date</span> <span>${new Date(b.dueDate).toLocaleDateString()}</span></div>
+                            <div class="bill-row"><span>Previous Dues</span> <span>₹${b.previousPending.toFixed(2)}</span></div>
+                            ${b.fine > 0 ? `<div class="bill-row"><span style="color:#ff5252">Late Fine</span> <span style="color:#ff5252">₹${b.fine}</span></div>` : ''}
+                            
+                            ${b.status === 'pending' ? `
+                                <div class="bill-row"><span>Min Charge</span> <span>₹25.00</span></div>
+                                <div class="bill-row" style="margin-top:10px; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">
+                                    <span>Fixed Slab ${b.units > 150 ? '(>150 Units)' : ''}</span>
+                                    <span>Included</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        ${b.status === 'pending'
+                        ? `<div class="bill-amount">₹${(b.totalBill + b.fine + b.previousPending).toFixed(2)}</div>
+                               <button class="pay-btn" onclick="openPaymentModal('${b._id}', ${b.totalBill + b.fine + b.previousPending})">Pay Bill</button>`
+                        : `<div class="bill-amount" style="color:#00c853">₹${b.paidAmount.toFixed(2)}</div>
+                               <div class="paid-info">
+                                   Paid via ${b.paymentMethod || 'Cash'}<br>
+                                   TXN: ${b.transactionId || '---'}<br>
+                                   Date: ${b.paidAt ? new Date(b.paidAt).toLocaleDateString() : '---'}
+                               </div>`
+                    }
+                    </div>
+                `).join('');
+            }
+        }
+
+        function openPaymentModal(billId, amount) {
+            document.getElementById('paymentBillId').value = billId;
+            document.getElementById('paymentAmountValue').value = amount;
+            document.getElementById('paymentTotal').textContent = '₹' + amount.toFixed(2);
+            document.getElementById('paymentModal').classList.add('show');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').classList.remove('show');
+        }
+
+        function selectMethod(method) {
+            currentPaymentMethod = method;
+            document.querySelectorAll('.method-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const form = document.getElementById('paymentForm');
+            if (method === 'card') {
+                form.innerHTML = `
+                    <input type="text" placeholder="Card Number">
+                    <input type="text" placeholder="MM/YY" style="width: 48%;">
+                    <input type="text" placeholder="CVC" style="width: 48%; float: right;">`;
+            } else if (method === 'upi') {
+                form.innerHTML = `<input type="text" placeholder="Enter UPI ID (e.g. user@oksbi)">`;
+            } else {
+                form.innerHTML = `
+                    <select style="width:100%; padding:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:8px;">
+                        <option>Select Bank</option>
+                        <option>HDFC Bank</option>
+                        <option>SBI</option>
+                        <option>ICICI Bank</option>
+                    </select>`;
+            }
+        }
+
+        async function processPayment() {
+            const billId = document.getElementById('paymentBillId').value;
+            const amount = parseFloat(document.getElementById('paymentAmountValue').value);
+
+            // Simulating payment processing
+            const btn = document.querySelector('.confirm-pay-btn');
+            btn.textContent = 'Processing...';
+            btn.disabled = true;
+
+            await new Promise(r => setTimeout(r, 1500)); // Fake delay
+
+            const res = await fetch('/api/payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({
+                    billId,
+                    amount,
+                    paymentMethod: currentPaymentMethod
+                })
+            });
+
+            const data = await res.json();
+
+            btn.textContent = 'Pay Now';
+            btn.disabled = false;
+
+            if (data.success) {
+                closePaymentModal();
+                document.getElementById('txnId').textContent = data.transactionId;
+                document.getElementById('successModal').classList.add('show');
+            } else {
+                alert(data.message || 'Payment Failed');
+            }
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.remove('show');
+            location.reload();
+        }
+
+        async function logout() {
+            await fetch('/api/logout', {
+                method: 'POST',
+                credentials: 'include'
+            });
+            window.location.href = '/';
+        }
+    </script>
+</body>
+
+</html>
